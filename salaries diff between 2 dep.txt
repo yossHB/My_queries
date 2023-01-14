@@ -1,0 +1,28 @@
+SELECT
+ABS(
+(SELECT max(salary)
+from db_employee e
+JOIN db_dept d
+ON  d.id = e.department_id
+WHERE department = 'marketing')
+-
+(SELECT max(salary)
+from db_employee e
+JOIN db_dept d
+ON d.id = e.department_id
+WHERE department = 'engineering')
+) AS salary_difference;
+
+-------------- python version
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+db_employee.head()
+db = db_employee.merge(db_dept, how = 'inner', left_on = 'department_id', right_on = 'id')
+
+engineer_max = db[db['department'] == "engineering"]['salary'].max()
+marketing_max = db[db['department'] == "marketing"]['salary'].max()
+
+abs(engineer_max - marketing_max)

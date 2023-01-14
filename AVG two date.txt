@@ -1,0 +1,60 @@
+WITH max_timestamp as
+(
+    SELECT
+    user_id,DATE(timestamp) as date_part, MAX(timestamp) as max_page_load
+    FROM
+    facebook_web_log
+    WHERE
+    action = 'page_load'
+    GROUP BY
+    1,2
+),
+min_timestamp as
+(
+    SELECT
+    user_id,DATE(timestamp) as date_part , MIN(timestamp) as min_page_exit
+    FROM
+    facebook_web_log
+    WHERE
+    action = 'page_exit'
+    GROUP BY
+    1,2
+)
+
+SELECT
+min_T.user_id,
+AVG(min_T.min_page_exit - max_T.max_page_load)
+FROM
+min_timestamp min_T
+JOIN
+max_timestamp max_T
+ON
+min_T.user_id = max_T.user_id
+AND min_T.date_part = max_T.date_part
+GROUP By 1
+
+-------------- python version
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+facebook_web_log.head()
+
+
+df1 = facebook_web_log[facebook_web_log['action'] == 'page_load']
+df1['day'] = df1['timestamp'].dt.date
+df1 = df1.groupby(['user_id','day'], as_index = False).max()
+
+
+df2 = facebook_web_log[facebook_web_log['action'] == 'page_exit']
+df2['day'] = df2['timestamp'].dt.date
+df2 = df2.groupby(['user_id','day'], as_index = False).min()
+
+fb_logs=pd.merge(df1,df2,left_on=["user_id","day"],right_on=["user_id","day"],how="inner")
+
+fb_user_log=fb_logs.groupby(["user_id","day"]).apply(lambda x : (x.timestamp_y.min() - x.timestamp_x.max()).total_seconds()).to_frame("duration").reset_index()
+
+fb_user_log.groupby(["user_id"])["duration"].mean().reset_index()
+
+

@@ -1,0 +1,19 @@
+with temp as (
+select  id ,max(salary) as salary
+from ms_employee_salary
+group by id
+order by id
+)
+select distinct (e.id), e.first_name, e.last_name, e.department_id, t.salary as  current_salary
+from ms_employee_salary e
+INNER JOIN temp t
+ON t.id = e.id
+order by id;
+
+
+-------------- python version
+df = ms_employee_salary.groupby('id')[['id','first_name', 'last_name','department_id','salary']].max()
+
+
+
+

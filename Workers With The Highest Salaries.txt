@@ -1,0 +1,16 @@
+select worker_title
+from worker w
+Join title t
+on t.worker_ref_id = w.worker_id
+where salary = (select Max(salary) from worker);
+-------------- python version
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+worker.head()
+worker[worker.salary == worker.salary.max()].merge(title, how = 'inner', left_on = 'worker_id', right_on = 'worker_ref_id')[['worker_title']]
+
+
+
