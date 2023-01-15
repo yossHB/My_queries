@@ -1,0 +1,17 @@
+select * from facebook_posts
+where post_id in (
+select post_id from facebook_reactions where reaction = 'heart'
+);
+
+
+-------------- python version
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+facebook_reactions.head()
+
+heart_posts_id = facebook_reactions[facebook_reactions['reaction'] == 'heart']['post_id']
+
+pd.merge(heart_posts_id,facebook_posts,on='post_id').drop_duplicates(subset = 'post_id')
