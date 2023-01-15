@@ -1,0 +1,27 @@
+select * from amazon_transactions;
+
+with time_between_purchases as (
+select user_id, created_at - lag(created_at) over (Partition by user_id order by created_at ASC) as time_from_last_purchase
+from amazon_transactions
+order by user_id, created_at ASC
+)
+select distinct user_id
+from time_between_purchases
+where time_from_last_purchase <= 7
+
+# https://www.sqlshack.com/sql-lag-function-overview-and-examples/
+-------------- python version
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+amazon_transactions
+
+amazon_transactions['day'] = amazon_transactions['created_at'].dt.date
+df = amazon_transactions[['user_id', 'created_at']].sort_values(by=['user_id', 'created_at'], ascending=[True, True])
+
+df['prev_value'] = df.groupby('user_id')['created_at'].shift()
+df['days'] = (df['created_at'] - df['prev_value']).dt.days
+result = df[df['days'] <= 7]['user_id'].unique()
+

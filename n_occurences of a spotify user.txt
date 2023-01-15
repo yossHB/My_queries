@@ -1,0 +1,16 @@
+select artist,count(position) as n_occurences
+from spotify_worldwide_daily_song_ranking
+group by 1
+order by 2 desc;
+
+-------------- python version
+
+1 meth :
+spotify_worldwide_daily_song_ranking.artist.value_counts().reset_index()
+
+2 meth :
+spotify_worldwide_daily_song_ranking.groupby(["artist"])["position"].count().reset_index().sort_values("position", ascending=False)
+
+
+
+
