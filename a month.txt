@@ -1,0 +1,17 @@
+SELECT cust_id, sum( total_order_cost )
+from orders
+where  EXTRACT('MONTH' FROM order_date :: TIMESTAMP) =3
+group by 1
+order by 2 DESC;
+
+-------------- python version
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+orders.head()
+
+orders.loc[orders.order_date.dt.to_period('M') == '2019-03', ['cust_id', 'total_order_cost']].groupby(["cust_id"])["total_order_cost"].sum().reset_index().sort_values('total_order_cost', ascending = False)
+
+

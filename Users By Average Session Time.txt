@@ -1,0 +1,38 @@
+--
+WITH page_load AS (
+    SELECT user_id, DATE(timestamp) AS date, MAX(timestamp) AS latest_pl
+    FROM facebook_web_log
+    WHERE action = 'page_load'
+    GROUP BY user_id, date ),
+
+page_exit AS (
+    SELECT user_id, DATE(timestamp) AS date, MIN(timestamp) AS latest_pe
+    FROM facebook_web_log
+    WHERE action = 'page_exit'
+    GROUP BY user_id, date)
+    
+SELECT page_load.user_id, AVG(page_exit.latest_pe - page_load.latest_pl) AS avg_sess_time
+FROM page_load
+JOIN page_exit 
+ON page_load.user_id = page_exit.user_id AND page_load.date = page_exit.date
+GROUP BY page_load.user_id;
+
+-------------- python version
+
+# Import your libraries
+import pandas as pd
+
+# Start writing code
+df = facebook_web_log
+df["date"] = df.timestamp.dt.date
+
+page_load = df[df.action == "page_load"].sort_values(["user_id", "timestamp"])
+page_load = page_load.groupby(["user_id", "date"]).tail(1)
+
+page_exit = df[df.action == "page_exit"].sort_values(["user_id", "timestamp"])
+page_exit = page_exit.groupby(["user_id", "date"]).head(1)
+
+result = pd.concat([page_load, page_exit]).sort_values(["user_id", "timestamp"])
+result["diff"] = (result.groupby(["user_id", "date"])["timestamp"].diff()).dt.seconds
+
+result = result.groupby("user_id")["diff"].mean().reset_index().dropna()
